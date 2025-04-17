@@ -1,0 +1,17 @@
+{
+    "name": "video-share",
+    "version": "1.0.0",
+    "description": "Compartilhe vídeos facilmente usando Cloudflare Tunnel",
+    "main": "video-share.js",
+    "bin": {
+      "video-share": "./video-share.js"
+    },
+    "scripts": {
+      "start": "node video-share.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2",
+      "mime-types": "^2.1.35",
+      "qrcode-terminal": "^0.12.0"
+    }
+  }
