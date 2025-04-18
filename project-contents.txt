@@ -1,3 +1,282 @@
+>>>>>>>.gitignore
+node_modules
+*.mp4
+>>>>>>>README.MD
+# Instruções para o Video-Share-Debug.js
+
+Este script aprimorado resolve problemas com o Cloudflare Tunnel e adiciona logs de depuração para ajudar a identificar o que está acontecendo quando o túnel trava.
+
+## Pré-requisitos
+
+- Node.js (versão 14+)
+- Cloudflared instalado
+- As dependências do projeto original
+
+## Instalação
+
+1. Salve o arquivo `video-share-debug.js` no mesmo diretório do projeto original
+
+2. Verifique se as dependências estão instaladas:
+   ```bash
+   npm install
+   ```
+
+## Uso
+
+Execute o script passando o caminho do vídeo e, opcionalmente, uma mensagem personalizada:
+
+```bash
+node video-share-debug.js /caminho/para/seu/video.mp4 "Feliz Páscoa, filha! Estou com saudades, te amo muito!"
+```
+
+## Novos recursos de depuração
+
+Este script aprimorado inclui:
+
+1. **Logs detalhados**: Mostra exatamente o que está acontecendo com o processo do Cloudflared
+2. **Detecção de falhas**: Identifica quando o túnel Cloudflare trava
+3. **Método alternativo de túnel**: Tenta um método diferente se o padrão falhar
+4. **Melhor encerramento de processos**: Garante que todos os processos sejam encerrados corretamente
+5. **Tratamento de erros aprimorado**: Captura e registra erros para ajudar na solução de problemas
+6. **Timeout com sugestões**: Se não conseguir URL em 60 segundos, mostra sugestões úteis
+
+## Solucionando problemas comuns do Cloudflared
+
+Se o túnel continuar travando:
+
+1. **Verifique a versão do Cloudflared**:
+   ```bash
+   cloudflared --version
+   ```
+   Atualize para a versão mais recente se necessário.
+
+2. **Execute o Cloudflared manualmente para ver mensagens de erro**:
+   ```bash
+   cloudflared tunnel --url http://localhost:3000 --verbose
+   ```
+
+3. **Verifique sua conexão de internet**:
+   Certifique-se de que sua conexão seja estável e que não esteja atrás de um firewall restritivo.
+
+4. **Verifique se há processos do Cloudflared travados**:
+   ```bash
+   # No Linux/Mac
+   ps aux | grep cloudflared
+   
+   # No Windows
+   tasklist | findstr cloudflared
+   ```
+   
+   Se encontrar processos antigos, encerre-os:
+   ```bash
+   # Linux/Mac
+   pkill -f cloudflared
+   
+   # Windows
+   taskkill /F /IM cloudflared.exe
+   ```
+
+5. **Alternativa: Use o método alternativo diretamente**:
+   ```bash
+   node video-share-debug.js /caminho/do/seu/video.mp4 "Sua mensagem" --alt-tunnel
+   ```
+
+## Entendendo os logs de depuração
+
+O script gera logs com prefixo `[DEBUG]` que mostram:
+
+- Inicialização e configuração do servidor
+- Tentativas de conexão do Cloudflared
+- Atividade do cliente (visualizações, pausas, etc.)
+- Erros e exceções
+
+Se precisar compartilhar esses logs para obter ajuda, você pode redirecioná-los para um arquivo:
+
+```bash
+node video-share-debug.js /caminho/do/seu/video.mp4 "Sua mensagem" > debug_log.txt 2>&1
+```
+
+## Considerações de segurança
+
+- O script expõe uma porta local (3000) para a internet através do Cloudflare
+- A URL gerada é temporária e válida apenas enquanto o script estiver em execução
+- As estatísticas de acesso são armazenadas localmente em `stats/access_stats.json`
+>>>>>>>package.json
+{
+  "name": "video-share-stats",
+  "version": "1.0.0",
+  "description": "Compartilhe vídeos facilmente com estatísticas de visualização",
+  "main": "video-share.js",
+  "bin": {
+    "video-share": "./video-share.js"
+  },
+  "scripts": {
+    "start": "node video-share.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mime-types": "^2.1.35",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
+>>>>>>>share-video.sh
+#!/bin/bash
+
+# Script para manter o servidor de vídeo rodando no Mac
+# Mesmo quando você fechar o terminal ou fizer logout
+
+# Verificar argumentos
+if [ -z "$1" ]; then
+  echo -e "\n❌ Erro: Arquivo de vídeo não especificado"
+  echo -e "\nUso: ./run-on-mac.sh /caminho/para/arquivo.mp4 [mensagem personalizada]"
+  echo -e "Exemplo: ./run-on-mac.sh ~/Videos/pascoa.mp4 \"Feliz Páscoa, filha! Com amor, papai.\"\n"
+  exit 1
+fi
+
+# Obter caminho completo do vídeo
+VIDEO_PATH=$(realpath "$1")
+
+# Mensagem personalizada (opcional)
+MESSAGE="$2"
+
+# Verificar se o arquivo existe
+if [ ! -f "$VIDEO_PATH" ]; then
+  echo -e "\n❌ Erro: O arquivo '$VIDEO_PATH' não foi encontrado"
+  exit 1
+fi
+
+# Diretório onde o script está
+SCRIPT_DIR=$(dirname "$0")
+cd "$SCRIPT_DIR"
+
+# Verificar se as dependências estão instaladas
+if ! command -v node &> /dev/null; then
+    echo "❌ Node.js não encontrado. Por favor, instale com 'brew install node'"
+    exit 1
+fi
+
+if ! command -v npm &> /dev/null; then
+    echo "❌ npm não encontrado. Instale o Node.js completo com 'brew install node'"
+    exit 1
+fi
+
+if ! command -v cloudflared &> /dev/null; then
+    echo "❌ Cloudflared não encontrado. Por favor, instale com 'brew install cloudflared'"
+    exit 1
+fi
+
+# Instalar dependências se necessário
+if [ ! -d "node_modules" ]; then
+    echo "📦 Instalando dependências..."
+    npm install
+fi
+
+# Nome do arquivo de log
+LOG_FILE="./video_server.log"
+
+# Verificar se já existe um servidor rodando
+if pgrep -f "node video-share-stats.js" > /dev/null; then
+    echo "⚠️ Servidor já está rodando. Deseja reiniciar? (s/n)"
+    read -r answer
+    if [[ "$answer" == "s" ]]; then
+        echo "🔄 Reiniciando servidor..."
+        pkill -f "node video-share-stats.js"
+        pkill -f "cloudflared tunnel"
+        sleep 2
+    else
+        echo "✅ Mantendo servidor atual."
+        exit 0
+    fi
+fi
+
+# Criar um arquivo LaunchAgent para manter o servidor rodando após o logout
+LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+PLIST_FILE="$LAUNCH_AGENTS_DIR/com.video.share.plist"
+
+if [ ! -d "$LAUNCH_AGENTS_DIR" ]; then
+    mkdir -p "$LAUNCH_AGENTS_DIR"
+fi
+
+# Função para criar o LaunchAgent
+create_launch_agent() {
+    echo "📝 Criando LaunchAgent para manter o servidor rodando..."
+    
+    # Preparar argumentos
+    if [ -z "$MESSAGE" ]; then
+        ARGS="\"$VIDEO_PATH\""
+    else
+        ARGS="\"$VIDEO_PATH\" \"$MESSAGE\""
+    fi
+    
+    # Criar o arquivo plist
+    cat > "$PLIST_FILE" << EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.video.share</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/node</string>
+        <string>${SCRIPT_DIR}/video-share-stats.js</string>
+        <string>${VIDEO_PATH}</string>
+EOL
+
+    # Adicionar mensagem se existir
+    if [ ! -z "$MESSAGE" ]; then
+        cat >> "$PLIST_FILE" << EOL
+        <string>${MESSAGE}</string>
+EOL
+    fi
+
+    # Completar o arquivo plist
+    cat >> "$PLIST_FILE" << EOL
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>WorkingDirectory</key>
+    <string>${SCRIPT_DIR}</string>
+    <key>StandardOutPath</key>
+    <string>${SCRIPT_DIR}/video_server.log</string>
+    <key>StandardErrorPath</key>
+    <string>${SCRIPT_DIR}/video_server_error.log</string>
+</dict>
+</plist>
+EOL
+
+    # Carregar o LaunchAgent
+    launchctl load "$PLIST_FILE"
+    echo "✅ LaunchAgent criado e carregado com sucesso!"
+}
+
+# Perguntar se deseja manter o servidor rodando após sair
+echo -e "\n🔄 Como você deseja executar o servidor?"
+echo "1) Executar no terminal atual (encerra quando fechar o terminal)"
+echo "2) Executar em segundo plano (continua mesmo após fechar o terminal)"
+echo -n "Escolha (1/2): "
+read -r choice
+
+if [[ "$choice" == "2" ]]; then
+    create_launch_agent
+    echo -e "\n🚀 Servidor iniciado em segundo plano!"
+    echo "📊 Para ver os logs: tail -f $LOG_FILE"
+    echo "⏹️  Para parar o servidor: launchctl unload $PLIST_FILE"
+    echo -e "\n⏳ Aguarde um momento enquanto o servidor inicia..."
+    sleep 5
+    # Mostrar as primeiras linhas do log para ver a URL
+    if [ -f "$SCRIPT_DIR/video_server.log" ]; then
+        echo -e "\n📋 Últimas linhas do log:"
+        tail -20 "$SCRIPT_DIR/video_server.log" | grep -A 10 "URL para assistir"
+    fi
+else
+    # Executar normalmente no terminal
+    echo -e "\n🚀 Iniciando servidor no terminal atual..."
+    node video-share-stats.js "$VIDEO_PATH" "$MESSAGE"
+fi
+>>>>>>>video-share.js
 #!/usr/bin/env node
 
 const express = require('express');
@@ -934,3 +1213,297 @@ const tunnelCheckInterval = setInterval(() => {
 
 // Log de finalização da inicialização
 debugLog('Inicialização completa');
+>>>>>>>.DS_Store
+   Bud1           	                                                    	       4Ilocblob                                                                                                                                                                                                                                                                                                                                                                                                                                         	    1 . m p 4Ilocblob     �   ~������      2 . m p 4Ilocblob     �   .������      n o d e _ m o d u l e sIlocblob      A   B������      p a c k a g e - l o c k . j s o nIlocblob      �   B������      p a c k a g e . j s o nIlocblob        B������     	 R E A D M E . M DIlocblob     �   B������      r u n - o n - m a c . s hIlocblob     �   B������      s h a r e - v i d e o . s hIlocblob     g   B������      v i d e o - s h a r e . j sIlocblob      A   �������                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @      �                                        @      �                                          @      �                                          @                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   E  	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       DSDB                                 `          �                                         @      �                                          @      �                                          @                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+>>>>>>>INSTALL.md
+# Guia de Solução de Problemas do Cloudflared
+
+Este guia ajudará você a diagnosticar e resolver problemas específicos com o Cloudflared que podem estar causando travamentos no seu script de compartilhamento de vídeo.
+
+## Problemas Comuns e Soluções
+
+### 1. O Cloudflared não consegue iniciar o túnel
+
+**Sintomas:**
+- Mensagem "Iniciando túnel Cloudflare..." aparece, mas nunca conclui
+- Nenhuma URL é gerada
+- Não há mensagens claras de erro
+
+**Possíveis causas e soluções:**
+
+#### Versão desatualizada do Cloudflared
+```bash
+# Verifique a versão
+cloudflared --version
+
+# Atualize para a versão mais recente
+# No macOS
+brew upgrade cloudflared
+
+# No Linux (usando pacotes .deb)
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+```
+
+#### Conflito com túneis anteriores
+Pode haver túneis antigos do Cloudflared ainda em execução:
+
+```bash
+# Encerre todos os processos do Cloudflared
+# No Linux/Mac
+pkill -f cloudflared
+
+# No Windows
+taskkill /F /IM cloudflared.exe
+```
+
+#### Problemas de permissão
+O Cloudflared pode não ter permissões para estabelecer a conexão:
+
+```bash
+# No Linux/Mac, tente executar como sudo
+sudo cloudflared tunnel --url http://localhost:3000
+
+# Verifique se a pasta .cloudflared em sua home tem permissões corretas
+ls -la ~/.cloudflared
+```
+
+### 2. O túnel inicia mas cai depois de alguns segundos
+
+**Sintomas:**
+- A URL é gerada, mas logo em seguida o túnel é encerrado
+- Mensagens de erro como "tunnel error" ou "connection reset"
+
+**Possíveis causas e soluções:**
+
+#### Firewall ou VPN bloqueando a conexão
+- Desative temporariamente firewalls ou VPNs
+- Verifique se a porta 443 (HTTPS) não está bloqueada para saída
+- Se estiver em rede corporativa, consulte o administrador de rede
+
+#### Problemas com o protocolo utilizado
+Tente forçar um protocolo específico:
+
+```bash
+cloudflared tunnel --url http://localhost:3000 --protocol quic
+# ou
+cloudflared tunnel --url http://localhost:3000 --protocol h2mux
+```
+
+#### Servidor local não está respondendo corretamente
+Verifique se o servidor Express está funcionando:
+```bash
+curl http://localhost:3000 -I
+```
+
+### 3. Problemas de DNS ou de Resolução de Nome
+
+**Sintomas:**
+- Erro relacionado a DNS ou resolução de nome
+- Mensagens como "could not resolve host"
+
+**Soluções:**
+- Tente usar servidores DNS públicos:
+  ```bash
+  # No Linux, edite /etc/resolv.conf temporariamente
+  echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+  echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
+  ```
+
+- Em caso de problemas persistentes, tente o método alternativo com um arquivo de configuração:
+  ```bash
+  # Crie um arquivo de configuração
+  echo "tunnel: true" > config.yml
+  echo "url: http://localhost:3000" >> config.yml
+  echo "logfile: tunnel.log" >> config.yml
+  
+  # Use o arquivo de configuração
+  cloudflared tunnel --config config.yml
+  ```
+
+### 4. Rastreando o Problema com Logs Detalhados
+
+Para identificar exatamente o que está ocorrendo:
+
+```bash
+# Crie um log detalhado do cloudflared
+cloudflared tunnel --url http://localhost:3000 --loglevel debug > cloudflared.log 2>&1
+```
+
+Analise o arquivo cloudflared.log para mensagens como:
+- "connection refused" (problema com o servidor local)
+- "certificate" (problema com certificados)
+- "timeout" (problema de rede)
+- "rate limit" (limite de uso do Cloudflare)
+
+### 5. Métodos Alternativos de Compartilhamento
+
+Se o Cloudflared continuar apresentando problemas, considere estas alternativas:
+
+#### Ngrok (similar ao Cloudflared)
+```bash
+# Instalar Ngrok
+npm install -g ngrok
+
+# Usar Ngrok para expor o servidor
+ngrok http 3000
+```
+
+#### LocalTunnel
+```bash
+# Instalar localtunnel
+npm install -g localtunnel
+
+# Usar localtunnel para expor o servidor
+lt --port 3000
+```
+
+## Verificação Passo a Passo
+
+Se você está com dificuldades para diagnosticar o problema:
+
+1. **Verifique o servidor local**
+   ```bash
+   # Inicie apenas o servidor Express
+   node -e "require('express')().get('/',(q,s)=>s.send('OK')).listen(3000,()=>console.log('OK'))"
+   
+   # Em outro terminal, confirme se está respondendo
+   curl http://localhost:3000
+   ```
+
+2. **Verifique o Cloudflared isoladamente**
+   ```bash
+   # Teste o cloudflared com um servidor simples
+   cloudflared tunnel --url http://localhost:3000
+   ```
+
+3. **Verifique sua conexão com servidores Cloudflare**
+   ```bash
+   # Ping para verificar a conectividade básica
+   ping one.one.one.one
+   
+   # Teste mais profundo usando TCP
+   nc -vz one.one.one.one 443
+   ```
+
+Lembre-se que, por ser um serviço gratuito, o Cloudflared pode ocasionalmente apresentar problemas temporários. Se nada mais funcionar, aguarde algumas horas e tente novamente.
+>>>>>>>run-on-mac.sh
+#!/bin/bash
+
+# Script para manter o servidor de vídeo rodando no Mac
+# Mesmo quando você fechar o terminal ou fizer logout
+
+# Verificar argumentos
+if [ -z "$1" ]; then
+  echo -e "\n❌ Erro: Arquivo de vídeo não especificado"
+  echo -e "\nUso: ./run-on-mac.sh /caminho/para/arquivo.mp4 [mensagem personalizada]"
+  echo -e "Exemplo: ./run-on-mac.sh ~/Videos/pascoa.mp4 \"Feliz Páscoa, filha! Com amor, papai.\"\n"
+  exit 1
+fi
+
+# Obter caminho completo do vídeo
+VIDEO_PATH=$(realpath "$1")
+
+# Mensagem personalizada (opcional)
+MESSAGE="$2"
+
+# Verificar se o arquivo existe
+if [ ! -f "$VIDEO_PATH" ]; then
+  echo -e "\n❌ Erro: O arquivo '$VIDEO_PATH' não foi encontrado"
+  exit 1
+fi
+
+# Diretório onde o script está
+SCRIPT_DIR=$(dirname "$0")
+cd "$SCRIPT_DIR"
+
+# Verificar se as dependências estão instaladas
+if ! command -v node &> /dev/null; then
+    echo "❌ Node.js não encontrado. Por favor, instale com 'brew install node'"
+    exit 1
+fi
+
+if ! command -v npm &> /dev/null; then
+    echo "❌ npm não encontrado. Instale o Node.js completo com 'brew install node'"
+    exit 1
+fi
+
+if ! command -v cloudflared &> /dev/null; then
+    echo "❌ Cloudflared não encontrado. Por favor, instale com 'brew install cloudflared'"
+    exit 1
+fi
+
+# Instalar dependências se necessário
+if [ ! -d "node_modules" ]; then
+    echo "📦 Instalando dependências..."
+    npm install
+fi
+
+# Nome do arquivo de log
+LOG_FILE="./video_server.log"
+
+# Verificar se já existe um servidor rodando
+if pgrep -f "node video-share-stats.js" > /dev/null; then
+    echo "⚠️ Servidor já está rodando. Deseja reiniciar? (s/n)"
+    read -r answer
+    if [[ "$answer" == "s" ]]; then
+        echo "🔄 Reiniciando servidor..."
+        pkill -f "node video-share-stats.js"
+        pkill -f "cloudflared tunnel"
+        sleep 2
+    else
+        echo "✅ Mantendo servidor atual."
+        exit 0
+    fi
+fi
+
+# Criar um arquivo LaunchAgent para manter o servidor rodando após o logout
+LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+PLIST_FILE="$LAUNCH_AGENTS_DIR/com.video.share.plist"
+
+if [ ! -d "$LAUNCH_AGENTS_DIR" ]; then
+    mkdir -p "$LAUNCH_AGENTS_DIR"
+fi
+
+# Função para criar o LaunchAgent
+create_launch_agent() {
+    echo "📝 Criando Launch
+>>>>>>>stats/access_stats.json
+{
+  "videoName": "1.mp4",
+  "totalViews": 2,
+  "firstView": "2025-04-17T20:45:45.958Z",
+  "lastView": "2025-04-17T20:46:08.151Z",
+  "viewDuration": [
+    {
+      "sessionId": "ufw3rr4qxcplnpafkdwafn",
+      "duration": 9.139,
+      "completed": true,
+      "timestamp": "2025-04-17T20:45:50.885Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"
+    },
+    {
+      "sessionId": "dsyks0u6hgk0wegut9u93n",
+      "duration": 11.218,
+      "completed": true,
+      "timestamp": "2025-04-17T20:46:16.793Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"
+    }
+  ],
+  "viewDetails": [
+    {
+      "timestamp": "2025-04-17T20:45:45.958Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+      "referrer": "direct",
+      "id": "view_1744922745959"
+    },
+    {
+      "timestamp": "2025-04-17T20:46:08.151Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+      "referrer": "direct",
+      "id": "view_1744922768151"
+    }
+  ]
+}

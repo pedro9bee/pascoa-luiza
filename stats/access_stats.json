@@ -1,0 +1,183 @@
+{
+  "videoName": "1.mp4",
+  "totalViews": 19,
+  "firstView": "2025-04-17T20:45:45.958Z",
+  "lastView": "2025-04-18T05:45:35.644Z",
+  "viewDuration": [
+    {
+      "sessionId": "ufw3rr4qxcplnpafkdwafn",
+      "duration": 9.139,
+      "completed": true,
+      "timestamp": "2025-04-17T20:45:50.885Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"
+    },
+    {
+      "sessionId": "dsyks0u6hgk0wegut9u93n",
+      "duration": 11.218,
+      "completed": true,
+      "timestamp": "2025-04-17T20:46:16.793Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"
+    },
+    {
+      "sessionId": "imzt38pa8sl2jctzwwp2px",
+      "duration": 9.02,
+      "completed": true,
+      "timestamp": "2025-04-17T21:17:42.673Z",
+      "device": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36"
+    },
+    {
+      "sessionId": "cqcli6s13rixjghcnmsc2",
+      "duration": 9.177,
+      "completed": true,
+      "timestamp": "2025-04-17T21:18:08.534Z",
+      "device": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_3_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/135.0.7049.83 Mobile/15E148 Safari/604.1"
+    },
+    {
+      "sessionId": "asc0ey2qbncfe4ilryqwlo",
+      "duration": 0,
+      "progress": 0,
+      "completed": false,
+      "timestamp": "2025-04-17T21:18:43.037Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 (+cloudflare.com)"
+    },
+    {
+      "sessionId": "fp5el7bjlck4z48rxx2aq9",
+      "duration": 0,
+      "progress": 0,
+      "completed": false,
+      "timestamp": "2025-04-17T21:19:01.048Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 (+cloudflare.com)"
+    },
+    {
+      "sessionId": "1e7np77r2l4sx6d35kgja",
+      "duration": 11.687999999999999,
+      "completed": true,
+      "timestamp": "2025-04-18T05:45:05.503Z",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"
+    }
+  ],
+  "viewDetails": [
+    {
+      "timestamp": "2025-04-17T20:45:45.958Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+      "referrer": "direct",
+      "id": "view_1744922745959"
+    },
+    {
+      "timestamp": "2025-04-17T20:46:08.151Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+      "referrer": "direct",
+      "id": "view_1744922768151"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:06.711Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      "referrer": "direct",
+      "id": "view_1744924626712"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:10.368Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744924630368"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:10.371Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744924630371"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:10.647Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744924630647"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:10.661Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744924630661"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:21.520Z",
+      "ip": "::1",
+      "userAgent": "WhatsApp/2.23.20.0",
+      "referrer": "direct",
+      "id": "view_1744924641520"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:34.991Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36",
+      "referrer": "direct",
+      "id": "view_1744924654991"
+    },
+    {
+      "timestamp": "2025-04-17T21:17:54.606Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_3_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/135.0.7049.83 Mobile/15E148 Safari/604.1",
+      "referrer": "direct",
+      "id": "view_1744924674606"
+    },
+    {
+      "timestamp": "2025-04-18T05:44:55.640Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+      "referrer": "direct",
+      "id": "view_1744955095640"
+    },
+    {
+      "timestamp": "2025-04-18T05:44:59.221Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955099221"
+    },
+    {
+      "timestamp": "2025-04-18T05:44:59.224Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955099224"
+    },
+    {
+      "timestamp": "2025-04-18T05:44:59.519Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955099519"
+    },
+    {
+      "timestamp": "2025-04-18T05:44:59.584Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955099584"
+    },
+    {
+      "timestamp": "2025-04-18T05:45:30.938Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+      "referrer": "direct",
+      "id": "view_1744955130938"
+    },
+    {
+      "timestamp": "2025-04-18T05:45:35.132Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955135132"
+    },
+    {
+      "timestamp": "2025-04-18T05:45:35.338Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955135338"
+    },
+    {
+      "timestamp": "2025-04-18T05:45:35.644Z",
+      "ip": "::1",
+      "referrer": "direct",
+      "id": "view_1744955135644"
+    }
+  ]
+}

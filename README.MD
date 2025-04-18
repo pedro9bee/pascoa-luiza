@@ -1,91 +1,99 @@
-# Compartilhar Vídeo de Páscoa - Modo Simples
+# Instruções para o Video-Share-Debug.js
 
-Este projeto oferece uma maneira super simples de compartilhar um vídeo de Páscoa com sua filha no Brasil usando apenas um comando no terminal.
+Este script aprimorado resolve problemas com o Cloudflare Tunnel e adiciona logs de depuração para ajudar a identificar o que está acontecendo quando o túnel trava.
 
-## Versão Shell Script (Mais Simples)
-
-### Pré-requisitos
-
-- Python 3 (já vem instalado na maioria dos sistemas Linux/Mac)
-- Cloudflared (para criar o túnel)
-- qrencode (opcional, para gerar QR Code no terminal)
-
-### Instalação
-
-1. Instale cloudflared:
-   ```bash
-   # Ubuntu/Debian
-   sudo apt install cloudflared
-   
-   # macOS
-   brew install cloudflared
-   ```
-
-2. Instale qrencode (opcional, para QR Code):
-   ```bash
-   sudo apt install qrencode   # Ubuntu/Debian
-   brew install qrencode       # macOS
-   ```
-
-3. Baixe o script e torne-o executável:
-   ```bash
-   chmod +x compartilhar-video.sh
-   ```
-
-### Uso
-
-Execute o script passando o caminho do vídeo e, opcionalmente, uma mensagem personalizada:
-
-```bash
-./compartilhar-video.sh /caminho/para/seu/video.mp4 "Feliz Páscoa, filha! Estou com saudades, te amo muito!"
-```
-
-O script vai:
-1. Iniciar um servidor local com o vídeo
-2. Criar um túnel Cloudflare para expor o servidor à internet
-3. Gerar uma URL e um QR Code para compartilhar
-
-## Versão Node.js (Alternativa)
-
-Se preferir usar Node.js, também criamos uma versão que oferece as mesmas funcionalidades.
-
-### Pré-requisitos
+## Pré-requisitos
 
 - Node.js (versão 14+)
-- Cloudflared (para criar o túnel)
-- npm (gerenciador de pacotes do Node.js)
+- Cloudflared instalado
+- As dependências do projeto original
 
-### Instalação
+## Instalação
 
-1. Instale as dependências:
+1. Salve o arquivo `video-share-debug.js` no mesmo diretório do projeto original
+
+2. Verifique se as dependências estão instaladas:
    ```bash
    npm install
    ```
 
-2. Instale cloudflared conforme as instruções acima.
+## Uso
 
-### Uso
+Execute o script passando o caminho do vídeo e, opcionalmente, uma mensagem personalizada:
 
 ```bash
-node video-share.js /caminho/para/seu/video.mp4 "Sua mensagem personalizada aqui"
+node video-share-debug.js /caminho/para/seu/video.mp4 "Feliz Páscoa, filha! Estou com saudades, te amo muito!"
 ```
 
-## Como funciona
+## Novos recursos de depuração
 
-1. O script inicia um servidor web simples na sua máquina
-2. O Cloudflare Tunnel cria um túnel seguro da internet para sua máquina local
-3. Você recebe uma URL e um QR Code que pode compartilhar
-4. Quando sua filha acessar o link, ela verá uma página bonita com tema de Páscoa contendo sua mensagem e o vídeo
+Este script aprimorado inclui:
 
-## Notas importantes
+1. **Logs detalhados**: Mostra exatamente o que está acontecendo com o processo do Cloudflared
+2. **Detecção de falhas**: Identifica quando o túnel Cloudflare trava
+3. **Método alternativo de túnel**: Tenta um método diferente se o padrão falhar
+4. **Melhor encerramento de processos**: Garante que todos os processos sejam encerrados corretamente
+5. **Tratamento de erros aprimorado**: Captura e registra erros para ajudar na solução de problemas
+6. **Timeout com sugestões**: Se não conseguir URL em 60 segundos, mostra sugestões úteis
 
-- O link funciona apenas enquanto o script estiver rodando no seu computador
-- Seu computador precisa estar ligado e conectado à internet enquanto sua filha estiver assistindo ao vídeo
-- A URL gerada pelo Cloudflare é temporária e muda cada vez que você inicia o script
-- Esta solução é gratuita e não requer nenhum cadastro ou configuração adicional
+## Solucionando problemas comuns do Cloudflared
 
-## Solução de problemas
+Se o túnel continuar travando:
 
-- **URL não é gerada**: Verifique se o cloudflared está instalado corretamente.
-- **Vídeo não carrega**: Certifique-se de que o formato do vídeo é compatível com navegadores (MP4 é recomendado).
-- **Erro de permissão**: Verifique se o script tem permissão de execução (`chmod +x compartilhar-video.sh`).# pascoa-luiza
+1. **Verifique a versão do Cloudflared**:
+   ```bash
+   cloudflared --version
+   ```
+   Atualize para a versão mais recente se necessário.
+
+2. **Execute o Cloudflared manualmente para ver mensagens de erro**:
+   ```bash
+   cloudflared tunnel --url http://localhost:3000 --verbose
+   ```
+
+3. **Verifique sua conexão de internet**:
+   Certifique-se de que sua conexão seja estável e que não esteja atrás de um firewall restritivo.
+
+4. **Verifique se há processos do Cloudflared travados**:
+   ```bash
+   # No Linux/Mac
+   ps aux | grep cloudflared
+   
+   # No Windows
+   tasklist | findstr cloudflared
+   ```
+   
+   Se encontrar processos antigos, encerre-os:
+   ```bash
+   # Linux/Mac
+   pkill -f cloudflared
+   
+   # Windows
+   taskkill /F /IM cloudflared.exe
+   ```
+
+5. **Alternativa: Use o método alternativo diretamente**:
+   ```bash
+   node video-share-debug.js /caminho/do/seu/video.mp4 "Sua mensagem" --alt-tunnel
+   ```
+
+## Entendendo os logs de depuração
+
+O script gera logs com prefixo `[DEBUG]` que mostram:
+
+- Inicialização e configuração do servidor
+- Tentativas de conexão do Cloudflared
+- Atividade do cliente (visualizações, pausas, etc.)
+- Erros e exceções
+
+Se precisar compartilhar esses logs para obter ajuda, você pode redirecioná-los para um arquivo:
+
+```bash
+node video-share-debug.js /caminho/do/seu/video.mp4 "Sua mensagem" > debug_log.txt 2>&1
+```
+
+## Considerações de segurança
+
+- O script expõe uma porta local (3000) para a internet através do Cloudflare
+- A URL gerada é temporária e válida apenas enquanto o script estiver em execução
+- As estatísticas de acesso são armazenadas localmente em `stats/access_stats.json`
