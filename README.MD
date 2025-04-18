@@ -1,99 +1,125 @@
-# Instruções para o Video-Share-Debug.js
+### 🇺🇸 `README.md`
 
-Este script aprimorado resolve problemas com o Cloudflare Tunnel e adiciona logs de depuração para ajudar a identificar o que está acontecendo quando o túnel trava.
+```markdown
+# 🎥 video-share-stats
 
-## Pré-requisitos
+Easily share personalized video messages over the internet — no upload needed. This project uses a local Node.js server with Cloudflare Tunnel to generate a public, temporary URL for any video on your computer, and provides detailed viewer statistics.
 
-- Node.js (versão 14+)
-- Cloudflared instalado
-- As dependências do projeto original
+> Ideal for sending family greetings, event invitations, or creative surprises via video.
 
-## Instalação
+---
 
-1. Salve o arquivo `video-share-debug.js` no mesmo diretório do projeto original
+## ✨ Features
 
-2. Verifique se as dependências estão instaladas:
-   ```bash
-   npm install
-   ```
+- 🌐 Public shareable link via Cloudflare Tunnel
+- 📊 Real-time viewer analytics (total views, duration, device info)
+- 📱 QR Code generation for easy sharing
+- 🔐 Keeps your video local — no uploads or third-party hosting
+- 🔁 Fallback tunnel mode if the main method fails
+- 🐞 Built-in debug logging and crash handling
+- 🖥️ macOS background execution via LaunchAgent
 
-## Uso
+---
 
-Execute o script passando o caminho do vídeo e, opcionalmente, uma mensagem personalizada:
+## 📦 Requirements
 
-```bash
-node video-share-debug.js /caminho/para/seu/video.mp4 "Feliz Páscoa, filha! Estou com saudades, te amo muito!"
-```
+- Node.js 14 or higher
+- `npm` installed
+- [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/) installed and accessible from the terminal
 
-## Novos recursos de depuração
+---
 
-Este script aprimorado inclui:
-
-1. **Logs detalhados**: Mostra exatamente o que está acontecendo com o processo do Cloudflared
-2. **Detecção de falhas**: Identifica quando o túnel Cloudflare trava
-3. **Método alternativo de túnel**: Tenta um método diferente se o padrão falhar
-4. **Melhor encerramento de processos**: Garante que todos os processos sejam encerrados corretamente
-5. **Tratamento de erros aprimorado**: Captura e registra erros para ajudar na solução de problemas
-6. **Timeout com sugestões**: Se não conseguir URL em 60 segundos, mostra sugestões úteis
-
-## Solucionando problemas comuns do Cloudflared
-
-Se o túnel continuar travando:
-
-1. **Verifique a versão do Cloudflared**:
-   ```bash
-   cloudflared --version
-   ```
-   Atualize para a versão mais recente se necessário.
-
-2. **Execute o Cloudflared manualmente para ver mensagens de erro**:
-   ```bash
-   cloudflared tunnel --url http://localhost:3000 --verbose
-   ```
-
-3. **Verifique sua conexão de internet**:
-   Certifique-se de que sua conexão seja estável e que não esteja atrás de um firewall restritivo.
-
-4. **Verifique se há processos do Cloudflared travados**:
-   ```bash
-   # No Linux/Mac
-   ps aux | grep cloudflared
-   
-   # No Windows
-   tasklist | findstr cloudflared
-   ```
-   
-   Se encontrar processos antigos, encerre-os:
-   ```bash
-   # Linux/Mac
-   pkill -f cloudflared
-   
-   # Windows
-   taskkill /F /IM cloudflared.exe
-   ```
-
-5. **Alternativa: Use o método alternativo diretamente**:
-   ```bash
-   node video-share-debug.js /caminho/do/seu/video.mp4 "Sua mensagem" --alt-tunnel
-   ```
-
-## Entendendo os logs de depuração
-
-O script gera logs com prefixo `[DEBUG]` que mostram:
-
-- Inicialização e configuração do servidor
-- Tentativas de conexão do Cloudflared
-- Atividade do cliente (visualizações, pausas, etc.)
-- Erros e exceções
-
-Se precisar compartilhar esses logs para obter ajuda, você pode redirecioná-los para um arquivo:
+## 🚀 Installation
 
 ```bash
-node video-share-debug.js /caminho/do/seu/video.mp4 "Sua mensagem" > debug_log.txt 2>&1
+git clone https://github.com/your-username/video-share-stats.git
+cd video-share-stats
+npm install
 ```
 
-## Considerações de segurança
+---
 
-- O script expõe uma porta local (3000) para a internet através do Cloudflare
-- A URL gerada é temporária e válida apenas enquanto o script estiver em execução
-- As estatísticas de acesso são armazenadas localmente em `stats/access_stats.json`
+## ▶️ How to Use
+
+Run the script by passing a video path and (optionally) a custom message:
+
+```bash
+node video-share.js /path/to/video.mp4 "Happy Easter, my dear!"
+```
+
+You’ll receive:
+
+- A public link (accessible while the app is running)
+- A QR code
+- A live stats dashboard at `/stats`
+
+> ⚠️ The link works only while your machine is online and the server is running.
+
+---
+
+## 🧠 Advanced: macOS Persistent Mode
+
+To keep the video server running in the background (even after logout), use:
+
+```bash
+./share-video.sh /path/to/video.mp4 "Your custom message"
+```
+
+You'll be asked to choose between:
+
+1. Run in terminal (stops on logout)
+2. Run as background LaunchAgent (stays active)
+
+To monitor logs:
+```bash
+tail -f ./video_server.log
+```
+
+To stop:
+```bash
+launchctl unload ~/Library/LaunchAgents/com.video.share.plist
+```
+
+---
+
+## 📈 Viewer Analytics
+
+Visit the `/stats` URL shown in the terminal to access:
+
+- Total views
+- Device/browser info
+- View duration
+- Completion rates per session
+
+All data is saved locally in `stats/access_stats.json`.
+
+---
+
+## 🛠 Troubleshooting
+
+If the tunnel fails to start or the video doesn't play correctly, see [`INSTALL.md`](./INSTALL.md) for solutions:
+
+- Cloudflared version issues
+- Network/firewall conflicts
+- Alternative tunnel methods (e.g., Ngrok, LocalTunnel)
+
+---
+
+## 🧪 Quick Local Test
+
+To verify everything is working:
+
+```bash
+# Start a test server
+node -e "require('express')().get('/',(q,s)=>s.send('OK')).listen(3000,()=>console.log('OK'))"
+
+# In another terminal
+curl http://localhost:3000
+```
+
+---
+
+## 📄 License
+
+MIT © Pedro Lemos
+```
